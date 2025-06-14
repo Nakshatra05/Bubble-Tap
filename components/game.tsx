@@ -4,10 +4,8 @@ import { useState, useEffect, useCallback, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Users, Trophy, Clock, Target, Zap, Play, Pause, RotateCcw } from "lucide-react"
-import { ethers } from "ethers"
+import { Clock, Target, Zap, Play, Pause, RotateCcw } from "lucide-react"
 
 interface Bubble {
   id: string
@@ -18,13 +16,6 @@ interface Bubble {
   speed: number
   type: "normal" | "bonus" | "bomb"
   points: number
-}
-
-interface Player {
-  id: string
-  name: string
-  score: number
-  isReady: boolean
 }
 
 interface GameState {
@@ -39,19 +30,11 @@ interface GameState {
   hasStarted?: boolean
 }
 
-interface MultiplayerRoom {
-  id: string
-  name: string
-  players: Player[]
-  maxPlayers: number
-  isActive: boolean
-}
-
 const BUBBLE_COLORS = ["#FF6B6B", "#4ECDC4", "#45B7D1", "#96CEB4", "#FFEAA7", "#DDA0DD", "#98D8C8"]
 const GAME_DURATION = 60 // seconds for time attack mode
 
 export default function BubbleTapGame() {
-  const [currentView, setCurrentView] = useState<"menu" | "game" | "multiplayer">("menu")
+  const [currentView, setCurrentView] = useState<"menu" | "game">("menu")
   const [gameState, setGameState] = useState<GameState>({
     bubbles: [],
     score: 0,
@@ -63,44 +46,14 @@ export default function BubbleTapGame() {
     level: 1,
   })
 
-  // Multiplayer state
-  const [playerName, setPlayerName] = useState("")
-  const [currentRoom, setCurrentRoom] = useState<MultiplayerRoom | null>(null)
-  const [availableRooms, setAvailableRooms] = useState<MultiplayerRoom[]>([])
-  const [walletAddress, setWalletAddress] = useState<string | null>(null)
-  const [walletError, setWalletError] = useState<string | null>(null)
+ 
 
   const gameAreaRef = useRef<HTMLDivElement>(null)
   const gameLoopRef = useRef<NodeJS.Timeout | undefined>(undefined)
   const bubbleSpawnRef = useRef<NodeJS.Timeout | undefined>(undefined)
   const startTimeRef = useRef<number | null>(null)
 
-  // Always call useRef at the top level for playerId fallback
-  const randomIdRef = useRef(Math.random().toString(36).substr(2, 9));
-  const playerId = walletAddress || playerName || randomIdRef.current;
 
-  // Initialize demo rooms
-  useEffect(() => {
-    setAvailableRooms([
-      {
-        id: "room1",
-        name: "Bubble Masters",
-        players: [
-          { id: "player1", name: "Alice", score: 1250, isReady: true },
-          { id: "player2", name: "Bob", score: 980, isReady: false },
-        ],
-        maxPlayers: 4,
-        isActive: false,
-      },
-      {
-        id: "room2",
-        name: "Speed Poppers",
-        players: [{ id: "player3", name: "Charlie", score: 2100, isReady: true }],
-        maxPlayers: 6,
-        isActive: true,
-      },
-    ])
-  }, [])
 
   const getBubbleSpeed = (score: number) => Math.min(2 + Math.floor(score / 100), 7)
   const getBubbleSpawnRate = (score: number) => Math.max(1000 - Math.floor(score / 50) * 70, 350)
@@ -202,18 +155,6 @@ export default function BubbleTapGame() {
         let newLives = prev.lives
         if (bubble.type === "bomb") newLives = Math.max(0, prev.lives - 1)
 
-        if (currentRoom) {
-          setCurrentRoom((room) => {
-            if (!room) return room
-            return {
-              ...room,
-              players: room.players.map((p) =>
-                p.id === playerId ? { ...p, score: newScore } : p,
-              ),
-            }
-          })
-        }
-
         if (newLives <= 0) setTimeout(() => endGame(), 0)
 
         return {
@@ -225,7 +166,7 @@ export default function BubbleTapGame() {
         }
       })
     },
-    [currentRoom, playerId, endGame],
+    [endGame],
   )
 
 
@@ -291,26 +232,7 @@ export default function BubbleTapGame() {
     }
   }, [gameState.isPlaying, gameState.lives, endGame])
 
-  // Multiplayer functions
-  const joinRoom = useCallback(
-    (room: MultiplayerRoom) => {
-      if (room.players.length >= room.maxPlayers || !playerName.trim()) return
-      const newPlayer: Player = {
-        id: playerId,
-        name: playerName.trim(),
-        score: 0,
-        isReady: false,
-      }
-      const updatedRoom = {
-        ...room,
-        players: [...room.players, newPlayer],
-      }
-      setCurrentRoom(updatedRoom)
-      setAvailableRooms((rooms) => rooms.map((r) => (r.id === room.id ? updatedRoom : r)))
-      setCurrentView("multiplayer")
-    },
-    [playerName, playerId],
-  )
+
 
   useEffect(() => {
     if (gameState.isPlaying && !gameState.hasStarted) {
@@ -321,84 +243,22 @@ export default function BubbleTapGame() {
     }
   }, [gameState.isPlaying, gameState.hasStarted])
 
-  const leaveRoom = useCallback(() => {
-    if (!currentRoom) return
 
-    const updatedRoom = {
-      ...currentRoom,
-      players: currentRoom.players.filter((p) => p.id !== playerId),
-    }
-
-    setAvailableRooms((rooms) => rooms.map((r) => (r.id === currentRoom.id ? updatedRoom : r)))
-    setCurrentRoom(null)
-    setCurrentView("menu")
-  }, [currentRoom, playerId])
-
-  const toggleReady = useCallback(() => {
-    if (!currentRoom) return
-
-    const updatedRoom = {
-      ...currentRoom,
-      players: currentRoom.players.map((p) => (p.id === playerId ? { ...p, isReady: !p.isReady } : p)),
-    }
-
-    setCurrentRoom(updatedRoom)
-    setAvailableRooms((rooms) => rooms.map((r) => (r.id === currentRoom.id ? updatedRoom : r)))
-  }, [currentRoom, playerId])
-
-  const startMultiplayerGame = useCallback(() => {
-    if (!currentRoom || !currentRoom.players.every((p) => p.isReady)) return
-    startGame("classic")
-  }, [currentRoom, startGame])
-
-  // Connect Monad wallet (EIP-1193 style)
-  const connectWallet = async () => {
-    try {
-      if (!(window as any).ethereum) {
-        setWalletError("Monad wallet not found. Please install it.")
-        return
-      }
-      const provider = new ethers.BrowserProvider((window as any).ethereum)
-      const accounts = await provider.send("eth_requestAccounts", [])
-      setWalletAddress(accounts[0])
-      setWalletError(null)
-    } catch (err: any) {
-      setWalletError(err.message)
-    }
-  }
-
-  useEffect(() => {
-    if (walletAddress) {
-      setPlayerName(walletAddress)
-    }
-  }, [walletAddress])
-
-  // Add disconnectWallet function
-  const disconnectWallet = () => {
-    setWalletAddress(null)
-    setWalletError(null)
-    // Optionally reset playerName if it was set from wallet
-    if (playerName === walletAddress) setPlayerName("")
-  }
 
   if (currentView === "menu") {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500 p-4">
-       
-        {walletError && <div className="text-red-500 text-xs text-right mb-2">{walletError}</div>}
+      <div className="min-h-screen bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500 p-4 pt-20">
+
+        {/* {walletError && <div className="text-red-500 text-xs text-right mb-2">{walletError}</div>} */}
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-8">
             <h1 className="text-6xl font-bold text-white mb-4 drop-shadow-lg">Bubble Pop</h1>
             <p className="text-xl text-white/90">Tap the bubbles and score big!</p>
           </div>
 
-          <Tabs defaultValue="singleplayer" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-6">
-              <TabsTrigger value="singleplayer">Single Player</TabsTrigger>
-              <TabsTrigger value="multiplayer">Multiplayer</TabsTrigger>
-            </TabsList>
+         
 
-            <TabsContent value="singleplayer">
+       
               <div className="grid md:grid-cols-3 gap-4">
                 <Card
                   className="hover:scale-105 transition-transform cursor-pointer"
@@ -441,130 +301,19 @@ export default function BubbleTapGame() {
                   </CardContent>
                 </Card>
               </div>
-            </TabsContent>
-
-            <TabsContent value="multiplayer">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Users className="w-5 h-5" />
-                    Multiplayer Rooms
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="mb-4">
-                    <Input
-                      placeholder="Enter your name"
-                      value={playerName}
-                      onChange={(e) => setPlayerName(e.target.value)}
-                      className="mb-4"
-                    />
-                  </div>
-
-                  <div className="space-y-3">
-                    {availableRooms.map((room) => (
-                      <div
-                        key={room.id}
-                        className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50"
-                      >
-                        <div>
-                          <h3 className="font-semibold">{room.name}</h3>
-                          <p className="text-sm text-gray-600">
-                            {room.players.length}/{room.maxPlayers} players
-                          </p>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          {room.isActive && <Badge variant="secondary">In Game</Badge>}
-                          <Button
-                            onClick={() => joinRoom(room)}
-                            disabled={room.players.length >= room.maxPlayers || !playerName.trim() || room.isActive}
-                            size="sm"
-                          >
-                            Join
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
+            
+         
         </div>
       </div>
     )
   }
 
-  if (currentView === "multiplayer" && currentRoom) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500 p-4">
-        
-        
-        <div className="max-w-4xl mx-auto">
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-2">
-                  <Users className="w-5 h-5" />
-                  {currentRoom.name}
-                </CardTitle>
-                <Button variant="outline" onClick={leaveRoom}>
-                  Leave Room
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="grid md:grid-cols-2 gap-6">
-                <div>
-                  <h3 className="font-semibold mb-3">
-                    Players ({currentRoom.players.length}/{currentRoom.maxPlayers})
-                  </h3>
-                  <div className="space-y-2">
-                    {currentRoom.players.map((player) => (
-                      <div key={player.id} className="flex items-center justify-between p-3 border rounded-lg">
-                        <div className="flex items-center gap-2">
-                          <div className={`w-3 h-3 rounded-full ${player.isReady ? "bg-green-500" : "bg-gray-300"}`} />
-                          <span className={player.id === playerId ? "font-bold" : ""}>
-                            {player.name} {player.id === playerId && "(You)"}
-                          </span>
-                        </div>
-                        <Badge variant="outline">{player.score} pts</Badge>
-                      </div>
-                    ))}
-                  </div>
-                </div>
 
-                <div>
-                  <h3 className="font-semibold mb-3">Game Controls</h3>
-                  <div className="space-y-3">
-                    <Button
-                      onClick={toggleReady}
-                      variant={currentRoom.players.find((p) => p.id === playerId)?.isReady ? "default" : "outline"}
-                      className="w-full"
-                    >
-                      {currentRoom.players.find((p) => p.id === playerId)?.isReady ? "Ready!" : "Ready Up"}
-                    </Button>
-
-                    {currentRoom.players.every((p) => p.isReady) && (
-                      <Button onClick={startMultiplayerGame} className="w-full" size="lg">
-                        <Play className="w-4 h-4 mr-2" />
-                        Start Game
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    )
-  }
 
   // Game view
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500 p-2 md:p-4">
-     
+
       <div className="max-w-6xl mx-auto">
         {/* Game HUD */}
         <div className="flex flex-wrap items-center justify-between mb-4 gap-2">
@@ -594,25 +343,7 @@ export default function BubbleTapGame() {
           </div>
         </div>
 
-        {/* Multiplayer leaderboard */}
-        {currentRoom && (
-          <Card className="mb-4">
-            <CardContent className="p-3">
-              <div className="flex items-center gap-4 overflow-x-auto">
-                {currentRoom.players
-                  .sort((a, b) => b.score - a.score)
-                  .map((player, index) => (
-                    <div key={player.id} className="flex items-center gap-2 min-w-fit">
-                      {index === 0 && <Trophy className="w-4 h-4 text-yellow-500" />}
-                      <span className={`text-sm ${player.id === playerId ? "font-bold" : ""}`}>
-                        {player.name}: {player.score}
-                      </span>
-                    </div>
-                  ))}
-              </div>
-            </CardContent>
-          </Card>
-        )}
+
 
         {/* Game Area */}
         <Card className="relative overflow-hidden">
