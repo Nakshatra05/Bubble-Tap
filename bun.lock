@@ -4,6 +4,7 @@
     "": {
       "name": "my-v0-project",
       "dependencies": {
+        "@envio-dev/hypersync-client": "^0.6.5",
         "@hookform/resolvers": "^3.9.1",
         "@privy-io/react-auth": "^2.14.2",
         "@radix-ui/react-accordion": "1.2.2",
@@ -56,6 +57,7 @@
         "react-resizable-panels": "^2.1.7",
         "recharts": "2.15.0",
         "sonner": "^1.7.1",
+        "swr": "^2.3.3",
         "tailwind-merge": "^2.5.5",
         "tailwindcss-animate": "^1.0.7",
         "vaul": "^0.9.6",
@@ -92,6 +94,20 @@
     "@emotion/memoize": ["@emotion/memoize@0.8.1", "", {}, "sha512-W2P2c/VRW1/1tLox0mVUalvnWXxavmv/Oum2aPsRcoDJuob75FC3Y8FbpfLwUegRcxINtGUMPq0tFCvYNTBXNA=="],
 
     "@emotion/unitless": ["@emotion/unitless@0.8.1", "", {}, "sha512-KOEGMu6dmJZtpadb476IsZBclKvILjopjUii3V+7MnXIQCYh8W3NgNcgwo21n9LXZX6EDIKvqfjYxXebDwxKmQ=="],
+
+    "@envio-dev/hypersync-client": ["@envio-dev/hypersync-client@0.6.5", "", { "optionalDependencies": { "@envio-dev/hypersync-client-darwin-arm64": "0.6.5", "@envio-dev/hypersync-client-darwin-x64": "0.6.5", "@envio-dev/hypersync-client-linux-arm64-gnu": "0.6.5", "@envio-dev/hypersync-client-linux-x64-gnu": "0.6.5", "@envio-dev/hypersync-client-linux-x64-musl": "0.6.5", "@envio-dev/hypersync-client-win32-x64-msvc": "0.6.5" } }, "sha512-mii+ponVo5ZmVOlEtJxyugGHuIuzYp5bVfr88mCuRwcWZIkNrWfad/aAW6H7YNe63E0gq0ePtRDrkLzlpAUuGQ=="],
+
+    "@envio-dev/hypersync-client-darwin-arm64": ["@envio-dev/hypersync-client-darwin-arm64@0.6.5", "", { "os": "darwin", "cpu": "arm64" }, "sha512-BjFmDFd+7QKuEkjlvwQjKy9b+ZWidkZHyKPjKSDg6u3KJe+fr+uY3rsW9TXNscUxJvl8YxJ2mZl0svOH7ukTyQ=="],
+
+    "@envio-dev/hypersync-client-darwin-x64": ["@envio-dev/hypersync-client-darwin-x64@0.6.5", "", { "os": "darwin", "cpu": "x64" }, "sha512-XT1l6bfsXgZqxh8BZbPoP/3Zk0Xvwzr/ZKVmzXR5ZhPxDgEVUJMg4Rd1oy8trd1K+uevqOr2DbuIGvM7k2hb8A=="],
+
+    "@envio-dev/hypersync-client-linux-arm64-gnu": ["@envio-dev/hypersync-client-linux-arm64-gnu@0.6.5", "", { "os": "linux", "cpu": "arm64" }, "sha512-MPTXagjE8/XQhNiZokIJWYqDcizf++TKOjbfYgCzlS6jzwgmeZs6WYcdYFC3FSaJyc9GX4diJ4GKOgbpR4XWtw=="],
+
+    "@envio-dev/hypersync-client-linux-x64-gnu": ["@envio-dev/hypersync-client-linux-x64-gnu@0.6.5", "", { "os": "linux", "cpu": "x64" }, "sha512-DUDY19T2O+ciniP8RHWEv6ziaCdVkkVVLhfXiovpLy+oR1K/+h7osUHD1HCPolibaU3V2EDpqTDhKBtvPXUGaQ=="],
+
+    "@envio-dev/hypersync-client-linux-x64-musl": ["@envio-dev/hypersync-client-linux-x64-musl@0.6.5", "", { "os": "linux", "cpu": "x64" }, "sha512-VolsHvPrk5PAdHN0ht1iowwXz7bwJO0L5qDuw3eSKF4qHuAzlwImB1CRhJrMIaE8McsDnN6fSlqDeTPRmzS/Ug=="],
+
+    "@envio-dev/hypersync-client-win32-x64-msvc": ["@envio-dev/hypersync-client-win32-x64-msvc@0.6.5", "", { "os": "win32", "cpu": "x64" }, "sha512-D+bkkWbCsbgaTrhyVdXHysKUCVzFpkWoxmaHnm2anad7+yKKfx15afYirtZMTKc7CLkYqganghN4QsBsEHl3Iw=="],
 
     "@ethereumjs/common": ["@ethereumjs/common@3.2.0", "", { "dependencies": { "@ethereumjs/util": "^8.1.0", "crc-32": "^1.2.0" } }, "sha512-pksvzI0VyLgmuEF2FA/JR/4/y6hcPq8OUail3/AvycBaW1d5VSauOZzqGvJ3RTmR4MU35lWE8KseKOsEhrFRBA=="],
 
@@ -793,6 +809,8 @@
 
     "delay": ["delay@5.0.0", "", {}, "sha512-ReEBKkIfe4ya47wlPYf/gu5ib6yUG0/Aez0JQZQz94kiWtRQvZIQbTiehsnwHvLSWJnQdhVeqYue7Id1dKr0qw=="],
 
+    "dequal": ["dequal@2.0.3", "", {}, "sha512-0je+qPKHEMohvfRTCEo3CrPG6cAzAYgmzKyxRiYSSDkS6eGJdyVJm7WaYA5ECaAD9wLB2T4EEeymA5aFVcYXCA=="],
+
     "derive-valtio": ["derive-valtio@0.1.0", "", { "peerDependencies": { "valtio": "*" } }, "sha512-OCg2UsLbXK7GmmpzMXhYkdO64vhJ1ROUUGaTFyHjVwEdMEcTTRj7W1TxLbSBxdY8QLBPCcp66MTyaSy0RpO17A=="],
 
     "destr": ["destr@2.0.5", "", {}, "sha512-ugFTXCtDZunbzasqBxrK93Ik/DRYsO6S/fedkWEMKqt04xZ4csmnmwGDBAb07QWNaGMAmnTIemsYZCksjATwsA=="],
@@ -1352,6 +1370,8 @@
     "superstruct": ["superstruct@2.0.2", "", {}, "sha512-uV+TFRZdXsqXTL2pRvujROjdZQ4RAlBUS5BTh9IGm+jTqQntYThciG/qu57Gs69yjnVUSqdxF9YLmSnpupBW9A=="],
 
     "supports-preserve-symlinks-flag": ["supports-preserve-symlinks-flag@1.0.0", "", {}, "sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w=="],
+
+    "swr": ["swr@2.3.3", "", { "dependencies": { "dequal": "^2.0.3", "use-sync-external-store": "^1.4.0" }, "peerDependencies": { "react": "^16.11.0 || ^17.0.0 || ^18.0.0 || ^19.0.0" } }, "sha512-dshNvs3ExOqtZ6kJBaAsabhPdHyeY4P2cKwRCniDVifBMoG/SVI7tfLWqPXriVspf2Rg4tPzXJTnwaihIeFw2A=="],
 
     "tabbable": ["tabbable@6.2.0", "", {}, "sha512-Cat63mxsVJlzYvN51JmVXIgNoUokrIaT2zLclCXjRd8boZ0004U4KCs/sToJ75C6sdlByWxpYnb5Boif1VSFew=="],
 
