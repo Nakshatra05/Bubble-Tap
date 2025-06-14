@@ -16,7 +16,7 @@ export default function Page() {
   ]
 
 
-  return <><Navbar items={items} accountId={''} appName={''} />
+  return <><Navbar  />
   <BubbleTapGame />
   </>
 }

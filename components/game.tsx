@@ -384,14 +384,7 @@ export default function BubbleTapGame() {
   if (currentView === "menu") {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500 p-4">
-        <div className="flex justify-end mb-2 gap-2">
-          <Button onClick={connectWallet} variant="outline" size="sm">
-            {walletAddress ? `Connected: ${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}` : "Connect Monad Wallet"}
-          </Button>
-          {walletAddress && (
-            <Button onClick={disconnectWallet} variant="destructive" size="sm">Disconnect</Button>
-          )}
-        </div>
+       
         {walletError && <div className="text-red-500 text-xs text-right mb-2">{walletError}</div>}
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-8">
@@ -505,15 +498,8 @@ export default function BubbleTapGame() {
   if (currentView === "multiplayer" && currentRoom) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500 p-4">
-        <div className="flex justify-end mb-2 gap-2">
-          <Button onClick={connectWallet} variant="outline" size="sm">
-            {walletAddress ? `Connected: ${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}` : "Connect Monad Wallet"}
-          </Button>
-          {walletAddress && (
-            <Button onClick={disconnectWallet} variant="destructive" size="sm">Disconnect</Button>
-          )}
-        </div>
-        {walletError && <div className="text-red-500 text-xs text-right mb-2">{walletError}</div>}
+        
+        
         <div className="max-w-4xl mx-auto">
           <Card>
             <CardHeader>
@@ -578,15 +564,7 @@ export default function BubbleTapGame() {
   // Game view
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500 p-2 md:p-4">
-      <div className="flex justify-end mb-2 gap-2">
-        <Button onClick={connectWallet} variant="outline" size="sm">
-          {walletAddress ? `Connected: ${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}` : "Connect Monad Wallet"}
-        </Button>
-        {walletAddress && (
-          <Button onClick={disconnectWallet} variant="destructive" size="sm">Disconnect</Button>
-        )}
-      </div>
-      {walletError && <div className="text-red-500 text-xs text-right mb-2">{walletError}</div>}
+     
       <div className="max-w-6xl mx-auto">
         {/* Game HUD */}
         <div className="flex flex-wrap items-center justify-between mb-4 gap-2">
