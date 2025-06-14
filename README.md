@@ -62,18 +62,6 @@ Contracts are deployed on the Monad Testnet. Testnet faucets and RPC config can 
 
 ---
 
-## 📸 Screenshots
-
-*(Include a few fun GIFs or screenshots here)*
-
----
-
-## 🌐 Live Demo
-
-**Play now** → [bubbletap.fun](https://bubbletap.fun) *(replace with actual URL)*
-
----
-
 ## ✨ Upcoming Features
 
 * Multiplayer Battle Mode: Send "bombs" to opponents on bubble clears
@@ -87,13 +75,6 @@ Contracts are deployed on the Monad Testnet. Testnet faucets and RPC config can 
 
 Have ideas to improve the game or the contracts? PRs and issues are welcome!
 Please open an issue first to discuss your proposal.
-
----
-
-## 📫 Contact
-
-Built by [@naksh005](https://x.com/naksh005)
-Follow updates on [@ArweaveIndia](https://x.com/ArweaveIndia) and tag us with your scores!
 
 ---
 
