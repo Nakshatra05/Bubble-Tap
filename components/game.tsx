@@ -6,6 +6,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Clock, Target, Zap, Play, Pause, RotateCcw } from "lucide-react"
+import { getSigner, publicClient } from "@/lib/viem";
+import { randomUUID } from "crypto";   // Node polyfill (Next.js 13+ includes it)
+import { parseGwei } from "viem/utils"
+
 
 interface Bubble {
   id: string
@@ -46,7 +50,14 @@ export default function BubbleTapGame() {
     level: 1,
   })
 
- 
+  const uuid = () =>
+    (typeof crypto !== "undefined" && crypto.randomUUID)
+      ? crypto.randomUUID()          // browser / Edge / Chrome / Safari
+      : Math.random().toString(36).slice(2) + Date.now(); 
+
+
+  const gameIdRef = useRef<string | null>(null);
+
 
   const gameAreaRef = useRef<HTMLDivElement>(null)
   const gameLoopRef = useRef<NodeJS.Timeout | undefined>(undefined)
@@ -138,39 +149,76 @@ export default function BubbleTapGame() {
     if (bubbleSpawnRef.current) clearInterval(bubbleSpawnRef.current)
   }, [])
 
+  const sendTapTx = async (bubble: Bubble, score: number) => {
+    try {
+      const signer = getSigner();
+  
+      /* 1️⃣  payload → hex */
+      const payload = {
+        gid: gameIdRef.current ?? crypto.randomUUID(),
+        score,
+      };
+      const data = ("0x" + Buffer.from(JSON.stringify(payload), "utf8").toString("hex")) as `0x${string}`;
+      /* 2️⃣  estimate the gas units */
+      const gas = await publicClient.estimateGas({
+        account: signer.account.address,
+        to: signer.account.address,
+        value: BigInt(0),
+        data
+      });
+
+      /* 3️⃣  send with explicit caps (2 gwei tip, 20 gwei max) */
+      await signer.sendTransaction({
+        account: signer.account,
+        to: signer.account.address,
+        value: BigInt(0),                                        // ← zero MON transferred
+        data,
+        gas,                                              // units
+        maxPriorityFeePerGas: parseGwei("2"),             // tip
+        maxFeePerGas:       parseGwei("20"),              // ceiling
+      });
+    } catch (err) {
+      console.error("tap-tx error:", err);
+    }
+  };
+  
   const popBubble = useCallback(
     (bubbleId: string) => {
-      setGameState((prev) => {
-        const bubble = prev.bubbles.find((b) => b.id === bubbleId)
-        if (!bubble) return prev
-
-        const newBubbles = prev.bubbles.filter((b) => b.id !== bubbleId)
-
+      setGameState(prev => {
+        const bubble = prev.bubbles.find(b => b.id === bubbleId);
+        if (!bubble) return prev;
+  
+        const newBubbles = prev.bubbles.filter(b => b.id !== bubbleId);
+  
         // 🎯 Dynamic score logic
-        let points = 10 + Math.floor((60 - bubble.size) * 0.8) // smaller = more points
-        if (bubble.type === "bonus") points = 50
-        else if (bubble.type === "bomb") points = -20
-
-        const newScore = prev.score + points
-        let newLives = prev.lives
-        if (bubble.type === "bomb") newLives = Math.max(0, prev.lives - 1)
-
-        if (newLives <= 0) setTimeout(() => endGame(), 0)
-
+        let points = 10 + Math.floor((60 - bubble.size) * 0.8);
+        if (bubble.type === "bonus") points = 50;
+        else if (bubble.type === "bomb") points = -20;
+  
+        const newScore = prev.score + points;
+        let newLives   = prev.lives;
+        if (bubble.type === "bomb") newLives = Math.max(0, prev.lives - 1);
+  
+        /* ---------- NEW: fire transaction (non-blocking) ---------- */
+        sendTapTx(bubble, Math.max(0, newScore));
+  
+        if (newLives <= 0) setTimeout(() => endGame(), 0);
+  
         return {
           ...prev,
           bubbles: newBubbles,
-          score: Math.max(0, newScore),
-          lives: newLives,
+          score  : Math.max(0, newScore),
+          lives  : newLives,
           hasStarted: true,
-        }
-      })
+        };
+      });
     },
     [endGame],
-  )
+  );
 
 
   const startGame = useCallback((mode: GameState["gameMode"]) => {
+    gameIdRef.current = uuid();  
     setGameState({
       bubbles: [],
       score: 0,
