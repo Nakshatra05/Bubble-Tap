@@ -152,6 +152,7 @@ export default function BubbleTapGame() {
   const sendTapTx = async (bubble: Bubble, score: number) => {
     try {
       const signer = getSigner();
+      console.log(signer)
   
       /* 1️⃣  payload → hex */
       const payload = {
@@ -173,9 +174,7 @@ export default function BubbleTapGame() {
         to: signer.account.address,
         value: BigInt(0),                                        // ← zero MON transferred
         data,
-        gas,                                              // units
-        maxPriorityFeePerGas: parseGwei("2"),             // tip
-        maxFeePerGas:       parseGwei("20"),              // ceiling
+        gas                                             // uni             // ceiling
       });
     } catch (err) {
       console.error("tap-tx error:", err);
